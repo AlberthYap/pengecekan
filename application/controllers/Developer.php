@@ -9,7 +9,6 @@ class Developer extends CI_Controller
         is_logged_in();
         $this->load->model('Developer_model');
         $this->load->model('User_model');
-        // $this->load->model('Admin_model');
     }
 
     public function index()
@@ -71,5 +70,366 @@ class Developer extends CI_Controller
             }
             redirect('developer');
         }
+    }
+
+    public function menu()
+    {
+
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $data['menu'] = $this->Developer_model->getMenu()->result_array();
+
+        $this->form_validation->set_rules('menu', 'menu', 'required');
+
+        if ($this->form_validation->run() == false) {
+            $data['title'] = 'Menu Management';
+            $data['lokasi'] = 'Menu';
+            $this->load->view('template/header', $data);
+            $this->load->view('template/topbar', $data);
+            $this->load->view('template/sidebar', $data);
+            $this->load->view('menu/index', $data);
+            $this->load->view('template/footer', $data);
+        } else {
+            $data = [
+                'menu' => $this->input->post('menu'),
+            ];
+
+            $insert = $this->Developer_model->insertMenu($data);
+
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+						Berhasil Membuat Menu Baru!
+					</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+						Gagal Membuat Menu baru!
+					</div>');
+            }
+            redirect('developer/menu');
+        }
+    }
+
+    public function subMenu()
+    {
+        $data['title'] = 'Sub Menu Management';
+        $data['lokasi'] = 'Menu';
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $data['subMenu'] = $this->Developer_model->getSubMenu();
+        $data['menu'] = $this->Developer_model->getMenu()->result_array();
+
+        $this->form_validation->set_rules('sub', 'sub', 'required');
+        $this->form_validation->set_rules('icon', 'icon', 'required');
+        $this->form_validation->set_rules('menu_id', 'menu_id', 'required');
+
+
+
+        if ($this->form_validation->run() == false) {
+            $this->load->view('template/header', $data);
+            $this->load->view('template/topbar', $data);
+            $this->load->view('template/sidebar', $data);
+            $this->load->view('menu/sub_menu', $data);
+            $this->load->view('template/footer', $data);
+        } else {
+            $data = [
+                'sub' => $this->input->post('sub'),
+                'icon' => $this->input->post('icon'),
+                'menu_id' => $this->input->post('menu_id'),
+                'tipe' => $this->input->post('tipe'),
+            ];
+
+
+            $insert = $this->Developer_model->insertsub($data);
+
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+						Berhasil Membuat Sub Menu Baru!
+					</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+						Gagal Membuat Sub Menu Baru!
+					</div>');
+            }
+            redirect('developer/subMenu');
+        }
+    }
+
+    public function isiMenu()
+    {
+        $data['title'] = 'Isi Sub Menu Management';
+        $data['lokasi'] = 'Menu';
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $data['isiMenu'] = $this->Developer_model->getIsiMenu();
+        $data['submenu'] = $this->Developer_model->getSub()->result_array();
+
+        $this->form_validation->set_rules('title', 'title', 'required');
+        $this->form_validation->set_rules('url', 'url', 'required');
+        $this->form_validation->set_rules('sub_id', 'sub_id', 'required');
+
+        if ($this->form_validation->run() == false) {
+            $this->load->view('template/header', $data);
+            $this->load->view('template/topbar', $data);
+            $this->load->view('template/sidebar', $data);
+            $this->load->view('menu/isi_sub_menu', $data);
+            $this->load->view('template/footer', $data);
+        } else {
+            $data = [
+                'title' => $this->input->post('title'),
+                'url' => $this->input->post('url'),
+                'sub_id' => $this->input->post('sub_id'),
+            ];
+
+            $insert = $this->Developer_model->insertIsi($data);
+
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+						Berhasil Membuat Isi Sub Menu Baru!
+					</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+						Gagal Membuat Isi Sub Menu Baru!
+					</div>');
+            }
+            redirect('developer/isiMenu');
+        }
+    }
+
+    public function hapusMenu($id)
+    {
+        $insert = $this->Developer_model->hapusMenu($id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+		Berhasil Menghapus Menu!
+	</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+		Gagal Menghapus Menu!
+	</div>');
+        }
+
+        redirect('developer/menu');
+    }
+
+    public function hapusSub($id)
+    {
+        $insert = $this->Developer_model->hapusSub($id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+		Berhasil Menghapus Sub Menu!
+	</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+		Gagal Menghapus Sub Menu!
+	</div>');
+        }
+        redirect('developer/submenu');
+    }
+
+    public function hapusIsi($id)
+    {
+        $insert = $this->Developer_model->hapusIsi($id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+		Berhasil Menghapus Isi Sub Menu!
+	</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+		Gagal Menghapus Isi Sub Menu!
+	</div>');
+        }
+        redirect('developer/isiMenu');
+    }
+
+
+    public function editMenu()
+    {
+        $id = $this->input->post('id');
+        $data = [
+            'menu' => $this->input->post('menu'),
+
+
+        ];
+        $insert = $this->Developer_model->editMenu($data, $id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Menu!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Menu!
+				</div>');
+        }
+
+        redirect('developer/menu');
+    }
+
+    public function editsub()
+    {
+        $id = $this->input->post('id');
+        $data = [
+            'sub' => $this->input->post('sub'),
+            'icon' => $this->input->post('icon'),
+            'menu_id' => $this->input->post('menu_id'),
+            'tipe' => $this->input->post('tipe')
+        ];
+        $insert = $this->Developer_model->editSub($data, $id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Sub Menu!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Sub Menu!
+				</div>');
+        }
+        redirect('developer/submenu');
+    }
+
+    public function editisi()
+    {
+        $id = $this->input->post('id');
+        $data = [
+            'title' => $this->input->post('isi'),
+            'url' => $this->input->post('url'),
+            'sub_id' => $this->input->post('sub_id')
+
+        ];
+        $insert = $this->Developer_model->editIsi($data, $id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Isi Sub Menu!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Isi Sub Menu!
+				</div>');
+        }
+        redirect('developer/isimenu');
+    }
+
+    // role
+
+    public function role()
+    {
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+        $data['role'] = $this->Developer_model->getRole();
+
+        $this->form_validation->set_rules('role', 'role', 'required');
+
+        if ($this->form_validation->run() == false) {
+            $data['title'] = 'Role';
+            $data['lokasi'] = 'Role (Developer)';
+            $this->load->view('template/header', $data);
+            $this->load->view('template/topbar', $data);
+            $this->load->view('template/sidebar', $data);
+            $this->load->view('role/role', $data);
+            $this->load->view('template/footer', $data);
+        } else {
+            $data = ['nama_role' => $this->input->post('role')];
+
+            $insert = $this->Developer_model->insertRole($data);
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Membuat Role Baru!
+				</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Membuat Role baru!
+				</div>');
+            }
+            redirect('developer/role');
+        }
+    }
+
+    public function roleaccess($role_id)
+    {
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $dataa = ['id_role' => $role_id];
+        $data['role'] = $this->Developer_model->getRoleById($dataa);
+
+
+        $data['menu'] = $this->Developer_model->getMenuE()->result_array();
+
+        $data['title'] = 'Role';
+        $data['lokasi'] = 'Role (Developer)';
+        $this->load->view('template/header', $data);
+        $this->load->view('template/topbar', $data);
+        $this->load->view('template/sidebar', $data);
+        $this->load->view('role/role-access', $data);
+        $this->load->view('template/footer', $data);
+    }
+
+
+    public function changeAccess()
+    {
+        $menu_id = $this->input->post('menuId');
+        $role_id = $this->input->post('roleId');
+
+        $data = [
+            'role_id' => $role_id,
+            'menu_id' => $menu_id
+        ];
+
+        $result = $this->Developer_model->getAccess($data);
+
+        if ($result->num_rows() < 1) {
+            $insert = $this->Developer_model->insertAccess($data);
+        } else {
+            $insert = $this->Developer_model->deleteAccess($data);
+        }
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+				Berhasil Mengubah User Access!
+			</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+				Gagal Mengubah User Access!
+			</div>');
+        }
+    }
+
+    public function editrole()
+    {
+        $id = $this->input->post('id');
+        $data = [
+            'nama_role' => $this->input->post('role')
+        ];
+        $insert = $this->Developer_model->editRole($data, $id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Role!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Role!
+				</div>');
+        }
+        redirect('developer/role');
+    }
+
+    public function hapusrole($id)
+    {
+        $delete = $this->Developer_model->hapusRole($id);
+
+        if ($delete) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Menghapus Role!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Menghapus Role!
+				</div>');
+        }
+        redirect('developer/role');
     }
 }

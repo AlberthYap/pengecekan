@@ -29,7 +29,7 @@
 			<?php foreach ($menu as $m) :  ?>
 				<li class="menu-header">
 					<?php if ($m['id_menu'] != 3) :  ?>
-						<?= $m['nama_menu']; ?>
+						<?= $m['menu']; ?>
 					<?php endif; ?>
 				</li>
 				<?php
@@ -52,12 +52,12 @@
 					?>
 
 					<?php if ($sm['tipe'] == 0 && $m['id_menu'] != 3) :  ?>
-						<?php if ($lokasi == $sm['nama_sub']) :  ?>
+						<?php if ($lokasi == $sm['sub']) :  ?>
 							<li class="nav-item dropdown active">
-								<a href="#" class="nav-link has-dropdown"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['nama_sub']); ?></span></a>
+								<a href="#" class="nav-link has-dropdown"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['sub']); ?></span></a>
 							<?php else : ?>
 							<li class="nav-item dropdown">
-								<a href="#" class="nav-link has-dropdown"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['nama_sub']); ?></span></a>
+								<a href="#" class="nav-link has-dropdown"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['sub']); ?></span></a>
 
 							<?php endif; ?>
 
@@ -76,13 +76,13 @@
 							</li>
 						<?php elseif ($sm['tipe'] == 1) : ?>
 							<?php foreach ($isiMenu as $im) : ?>
-								<?php if ($lokasi == $sm['nama_sub']) :  ?>
+								<?php if ($lokasi == $sm['sub']) :  ?>
 									<li class="active">
-										<a href="<?= base_url($im['url']) ?>" class="nav-link"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['nama_sub']); ?></span></a>
+										<a href="<?= base_url($im['url']) ?>" class="nav-link"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['sub']); ?></span></a>
 									</li>
 								<?php else :  ?>
 									<li>
-										<a href="<?= base_url($im['url']) ?>" class="nav-link"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['nama_sub']); ?></span></a>
+										<a href="<?= base_url($im['url']) ?>" class="nav-link"><i class="<?= ($sm['icon']); ?>"></i><span><?= ($sm['sub']); ?></span></a>
 									</li>
 								<?php endif; ?>
 							<?php endforeach; ?>
