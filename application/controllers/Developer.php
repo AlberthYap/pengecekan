@@ -11,8 +11,31 @@ class Developer extends CI_Controller
         $this->load->model('User_model');
     }
 
+    // Registrasi Admin
+    public function cekUsername()
+    {
+        $unit = $this->Developer_model->getUnitById($this->input->post('id_unit'));
+
+        $username = strtolower($unit['kode_unit'] . str_replace(' ', '', htmlspecialchars($this->input->post('username', true))));
+
+        $cek = $this->Developer_model->cekUsername($username);
+        if ($cek > 0) {
+            $this->form_validation->set_message('Username Telah Terdaftar');
+            return false;
+        } else {
+            return TRUE;
+        }
+    }
+
     public function index()
     {
+
+        $this->form_validation->set_rules(
+            'username',
+            'Username',
+            'required|trim|callback_cekUsername',
+            ['cekUsername' => 'Username Telah Terdaftar']
+        );
         $this->form_validation->set_rules('nDepan', 'Nama Depan', 'required|trim');
         $this->form_validation->set_rules('nBelakang', 'Nama Belakang', 'required|trim');
         $this->form_validation->set_rules('nohp', 'NO HP', 'required|trim');
@@ -30,11 +53,9 @@ class Developer extends CI_Controller
         $data['user'] = $this->User_model->sessionUser()->row_array();
         $data['unit'] = $this->Developer_model->getUnit();
 
-
-
         if ($this->form_validation->run() == false) {
-            $data['title'] = 'Registrasi User';
-            $data['lokasi'] = 'Registrasi';
+            $data['title'] = 'Registrasi Admin';
+            $data['lokasi'] = 'Registrasi Admin';
             $this->load->view('template/header', $data);
             $this->load->view('template/topbar', $data);
             $this->load->view('template/sidebar', $data);
@@ -43,35 +64,46 @@ class Developer extends CI_Controller
         } else {
             $unit = $this->Developer_model->getUnitById($this->input->post('id_unit'));
 
-            $username = $unit['kode_unit'] . substr(htmlspecialchars($this->input->post('nDepan', true)), 0, 1) . substr(htmlspecialchars($this->input->post('nBelakang', true)), 0, 3);
+            $username = strtolower($unit['kode_unit'] . str_replace(' ', '', htmlspecialchars($this->input->post('username', true))));
 
-            $data = [
-                'username' => $username,
-                'nama_depan' => htmlspecialchars($this->input->post('nDepan', true)),
-                'nama_belakang' => htmlspecialchars($this->input->post('nBelakang', true)),
-                'password' => password_hash($this->input->post('password1'), PASSWORD_DEFAULT),
-                'nohp' => htmlspecialchars($this->input->post('nohp', true)),
-                'foto_user' => 'default.png',
-                'unit_id' => htmlspecialchars($this->input->post('id_unit', true)),
-                'role_id' => 2,
-                'active' => 1,
-            ];
-
-            $insert = $this->Developer_model->insertAdmin($data);
-
-            if ($insert) {
-                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-					Berhasil Membuat User Baru!
-				</div>');
+            if ($this->form_validation->run() == false) {
+                $data['title'] = 'Registrasi Admin';
+                $data['lokasi'] = 'Registrasi Admin';
+                $this->load->view('template/header', $data);
+                $this->load->view('template/topbar', $data);
+                $this->load->view('template/sidebar', $data);
+                $this->load->view('developer/registrasi', $data);
+                $this->load->view('template/footer', $data);
             } else {
-                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+                $data = [
+                    'username' => $username,
+                    'nama_depan' => htmlspecialchars($this->input->post('nDepan', true)),
+                    'nama_belakang' => htmlspecialchars($this->input->post('nBelakang', true)),
+                    'password' => password_hash($this->input->post('password1'), PASSWORD_DEFAULT),
+                    'nohp' => htmlspecialchars($this->input->post('nohp', true)),
+                    'foto_user' => 'default.png',
+                    'unit_id' => htmlspecialchars($this->input->post('id_unit', true)),
+                    'role_id' => 2,
+                    'active' => 1,
+                ];
+
+                $insert = $this->Developer_model->insertAdmin($data);
+
+                if ($insert) {
+                    $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Membuat User Baru! Username : <b>' . $username . ' </b>
+				</div>');
+                } else {
+                    $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
 					Gagal Membuat User baru
 				</div>');
+                }
+                redirect('developer');
             }
-            redirect('developer');
         }
     }
 
+    // Menu Management
     public function menu()
     {
 
@@ -431,5 +463,209 @@ class Developer extends CI_Controller
 				</div>');
         }
         redirect('developer/role');
+    }
+
+    // Unit
+
+    public function unit()
+    {
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+        $data['unit'] = $this->Developer_model->getUnit();
+
+        $this->form_validation->set_rules('unit', 'Nama Unit', 'required');
+        $this->form_validation->set_rules(
+            'kode_unit',
+            'Kode Unit',
+            'required|trim|is_unique[unit.kode_unit]',
+            ['is_unique' => 'Kode Unit Telah Terdaftar!']
+        );
+
+
+        if ($this->form_validation->run() == false) {
+            $data['title'] = 'Unit';
+            $data['lokasi'] = 'Unit';
+            $this->load->view('template/header', $data);
+            $this->load->view('template/topbar', $data);
+            $this->load->view('template/sidebar', $data);
+            $this->load->view('developer/unit', $data);
+            $this->load->view('template/footer', $data);
+        } else {
+            $data = [
+                'nama_unit' => htmlspecialchars($this->input->post('unit')),
+                'kode_unit' => strtoupper(htmlspecialchars($this->input->post('kode_unit'))),
+            ];
+
+            $insert = $this->Developer_model->insertUnit($data);
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Membuat Unit Baru!
+				</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Membuat Unit baru!
+				</div>');
+            }
+            redirect('developer/unit');
+        }
+    }
+
+    public function editunit()
+    {
+        $id = $this->input->post('id');
+        $data = [
+            'nama_unit' => $this->input->post('unit'),
+            'kode_unit' => strtoupper(htmlspecialchars($this->input->post('kode_unit'))),
+        ];
+        $insert = $this->Developer_model->editUnit($data, $id);
+
+        if ($insert) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Unit!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Unit!
+				</div>');
+        }
+        redirect('developer/Unit');
+    }
+
+    public function hapusUnit($id)
+    {
+        $delete = $this->Developer_model->hapusUnit($id);
+
+        if ($delete) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Menghapus Unit!
+				</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Menghapus Unit!
+				</div>');
+        }
+        redirect('developer/unit');
+    }
+
+    // Data User
+
+    public function datauser()
+    {
+        $data['title'] = 'Data User';
+        $data['lokasi'] = 'Data User';
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $data['userJoin'] = $this->Developer_model->getUserJoin();
+        $data['role'] = $this->Developer_model->getRole();
+        $data['unit'] = $this->Developer_model->getUnit();
+
+        $this->load->view('template/header', $data);
+        $this->load->view('template/topbar', $data);
+        $this->load->view('template/sidebar', $data);
+        $this->load->view('developer/datauser', $data);
+        $this->load->view('template/footer', $data);
+    }
+
+    public function editdatauser()
+    {
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $current_password = $this->input->post('password');
+
+        if (!password_verify($current_password, $data['user']['password'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+		Password Anda Salah
+	  </div>');
+            redirect('developer/datauser');
+        } else {
+            $id = $this->input->post('id');
+            $old_password = $this->Developer_model->getPass($id);
+            $pass1 = $this->input->post('password1');
+            $pass2 = $this->input->post('password2');
+
+            if (!empty($pass1) && !empty($pass2)) {
+                $passwordBaru = password_hash($this->input->post('password1'), PASSWORD_DEFAULT);
+            } else {
+                $passwordBaru = $old_password['password'];
+            }
+
+            $upload_image = $_FILES['foto']['name'];
+
+            $fotolama = $this->Developer_model->getFoto($id);
+            $old_image = $fotolama['foto_user'];
+
+
+            if ($upload_image == true) {
+                $config['allowed_types'] = 'gif|jpg|png|jpeg';
+                $config['upload_path'] = './assets/img/avatar/';
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('foto_user')) {
+                    if ($old_image != 'default.png') {
+                        unlink(FCPATH . 'assets/img/avatar/' . $old_image);
+                    }
+
+                    $new_image = $this->upload->data('file_name');
+                    $this->image_autorotate->resizeFoto($new_image);
+                } else {
+                    $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">' . $this->upload->display_errors() . '</div>');
+                    redirect('developer/datauser');
+                }
+            } else {
+                $new_image = $old_image;
+            }
+
+            $data = [
+                'nama_depan' => $this->input->post('nama'),
+                'nama_belakang' => $this->input->post('namabel'),
+                'unit_id' => $this->input->post('unit_id'),
+                'role_id' => $this->input->post('role_id'),
+                'nohp' => $this->input->post('nohp'),
+                'foto_user' => $new_image,
+                'password' => $passwordBaru,
+            ];
+
+            $insert = $this->Developer_model->editdatauser($data, $id);
+
+            if ($insert) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Mengubah Data User!
+				</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Mengubah Data User!
+				</div>');
+            }
+            redirect('developer/datauser');
+        }
+    }
+
+    public function hapususer()
+    {
+
+        $data['user'] = $this->User_model->sessionUser()->row_array();
+
+        $current_password = $this->input->post('password');
+
+        if (!password_verify($current_password, $data['user']['password'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+		Password Anda Salah Tidak Dapat Menghapus User
+	  </div>');
+            redirect('developer/datauser');
+        } else {
+            $id = $this->input->post('id');
+            $delete = $this->Admin_model->hapusUser($id);
+
+            if ($delete) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+					Berhasil Menghapus User!
+				</div>');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+					Gagal Menghapus User!
+				</div>');
+            }
+            redirect('developer/datauser');
+        }
     }
 }

@@ -24,12 +24,17 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-6">
-                                <label for="inputAddress">No HP</label>
+                            <div class="form-group col-4">
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control" name="username" id="username" placeholder="Masukkan Username" value="<?= set_value('username'); ?>" required>
+                                <?= form_error('username', '<small class="text-danger pl-3">', '</small>') ?>
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="nohp">No HP</label>
                                 <input type="tel" class="form-control" name="nohp" id="nohp" placeholder="Masukkan No HP" value="<?= set_value('nohp'); ?>" required>
                                 <?= form_error('nohp', '<small class="text-danger pl-3">', '</small>') ?>
                             </div>
-                            <div class="form-group col-6">
+                            <div class="form-group col-4">
                                 <label for="unit_id">Unit</label>
                                 <select name="id_unit" id="id_unit" class="form-control">
                                     <?php foreach ($unit as $u) : ?>

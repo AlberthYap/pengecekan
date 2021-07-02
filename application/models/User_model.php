@@ -12,4 +12,17 @@ class User_model extends CI_Model
     {
         return $this->db->get_where('user', ['username' => $this->session->userdata('username')]);
     }
+
+    public function editProfile($data, $username)
+    {
+        $this->db->where('username', $username);
+        return $this->db->update('user', $data);
+    }
+
+    public function ubahPassword($pass, $ses)
+    {
+        $this->db->set('password', $pass);
+        $this->db->where('username', $ses);
+        return $this->db->update('user');
+    }
 }
