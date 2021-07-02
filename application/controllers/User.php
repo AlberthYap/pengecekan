@@ -29,7 +29,8 @@ class User extends CI_Controller
         $data['user'] = $this->User_model->sessionUser()->row_array();
 
 
-        $this->form_validation->set_rules('nama', 'nama', 'required|trim');
+        $this->form_validation->set_rules('nama_depan', 'Nama Depan', 'required|trim');
+        $this->form_validation->set_rules('nama_belakang', 'Nama Belakang', 'required|trim');
         $this->form_validation->set_rules('nohp', 'NO HP', 'required|trim');
 
 
@@ -42,13 +43,15 @@ class User extends CI_Controller
             $this->load->view('user/edit', $data);
             $this->load->view('template/footer', $data);
         } else {
-            $nama = $this->input->post('nama');
+            $namaDepan = $this->input->post('nama_depan');
+            $namaBelakang = $this->input->post('nama_belakang');
             $username = $this->input->post('username');
             $nohp = $this->input->post('nohp');
+            $email = $this->input->post('email');
 
             // mengecek gambar yang diakan diupload
             $upload_image = $_FILES['foto']['name'];
-            $old_image = $data['user']['foto'];
+            $old_image = $data['user']['foto_user'];
 
             if ($upload_image == true) {
                 $config['allowed_types'] = 'gif|jpg|png|jpeg';
@@ -72,9 +75,11 @@ class User extends CI_Controller
             }
 
             $data = [
-                'nama' => $nama,
-                'foto' => $new_image,
-                'nohp' => $nohp
+                'nama_depan' => $namaDepan,
+                'nama_belakang' => $namaBelakang,
+                'foto_user' => $new_image,
+                'nohp' => $nohp,
+                'email' => $email
             ];
 
             $insert = $this->User_model->editProfile($data, $username);
