@@ -205,6 +205,13 @@ class Developer_model extends CI_Model
         return $this->db->update('user');
     }
 
+    public function activeUser($id)
+    {
+        $this->db->set('active', 1);
+        $this->db->where('id_user', $id);
+        return $this->db->update('user');
+    }
+
     public function getFoto($id)
     {
         $query = "SELECT `foto_user` from user where `id_user` = $id";

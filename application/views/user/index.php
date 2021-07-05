@@ -18,12 +18,12 @@
 					<div class="card author-box card-primary">
 						<div class="card-body">
 							<div class="author-box-left">
-								<img alt="image" src="<?= base_url('assets/img/avatar/') . $user['foto'] ?>" class="rounded-circle author-box-picture">
+								<img alt="image" src="<?= base_url('assets/img/avatar/') . $user['foto_user'] ?>" class="rounded-circle author-box-picture">
 								<div class="clearfix"></div>
 							</div>
 							<div class="author-box-details">
 								<div class="author-box-name mt-4">
-									<h3>Nama : <?= $user['nama']; ?></h3>
+									<h3>Nama : <?= $user['nama_depan']; ?> <?= $user['nama_belakang'] ?></h3>
 									<h3>Username : <?= $user['username']; ?></h3>
 								</div>
 							</div>

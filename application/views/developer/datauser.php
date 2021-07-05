@@ -29,7 +29,7 @@
 									<?php $i = 1; ?>
 									<?php foreach ($userJoin as $uj) : ?>
 										<?php if ($user['role_id'] == 1) : ?>
-											<?php if ($uj['role_id'] != 1 and $uj['active'] == 1) : ?>
+											<?php if ($uj['role_id'] != 1) : ?>
 												<tr>
 													<th scope="row"><?= $i; ?></th>
 													<td><?= $uj['nama_depan']; ?> <?= $uj['nama_belakang']; ?></td>
@@ -46,13 +46,17 @@
 													</td>
 													<td>
 														<a href="#" class="badge badge-success btn-edit" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>" data-namabel="<?= $uj['nama_belakang']; ?>" data-username="<?= $uj['username']; ?>" data-role="<?= $uj['role_id']; ?>" data-nohp="<?= $uj['nohp']; ?>" data-gambar="<?= base_url('assets/img/avatar/') . $uj['foto_user'] ?>" data-unit="<?= $uj['unit_id']; ?>"><i class=" fas fa-fw fa-pencil-alt"></i>Edit</a>
-														<a href="#" class="badge badge-danger btn-hapus" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>"><i class="far fa-trash-alt"></i> Delete</a>
+														<?php if ($uj['active'] == 1) : ?>
+															<a href="#" class="badge badge-danger btn-hapus" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>"><i class="far fa-trash-alt"></i> <small>Deactivate</small> </a>
+														<?php elseif ($uj['active'] == 0) : ?>
+															<a href="#" class="badge badge-warning btn-aktif" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>"><i class="far fa-trash-alt"></i> <small>Activate</small> </a>
+														<?php endif; ?>
 													</td>
 												</tr>
 												<?php $i++ ?>
 											<?php endif; ?>
 										<?php else :  ?>
-											<?php if (($uj['role_id'] != 1 and $uj['role_id'] != 2) and $uj['deleted'] == 0) : ?>
+											<?php if (($uj['role_id'] != 1 and $uj['role_id'] != 2)) : ?>
 												<tr>
 													<th scope="row"><?= $i; ?></th>
 													<td><?= $uj['nama']; ?></td>
@@ -60,8 +64,11 @@
 													<td><?= $uj['nohp']; ?></td>
 													<td><?= $uj['nama_role']; ?></td>
 													<td>
-														<a href="#" class="badge badge-success btn-edit" data-id="<?= $uj['id']; ?>" data-nama="<?= $uj['nama']; ?>" data-username="<?= $uj['username']; ?>" data-role="<?= $uj['role_id']; ?>" data-nohp="<?= $uj['nohp']; ?>" data-gambar="<?= base_url('assets/img/avatar/') . $uj['foto'] ?>"><i class=" fas fa-fw fa-pencil-alt"></i>Edit</a>
-														<a href="#" class="badge badge-danger btn-hapus" data-id="<?= $uj['id']; ?>" data-nama="<?= $uj['nama']; ?>"><i class="far fa-trash-alt"></i> Delete</a>
+														<?php if ($uj['active'] == 1) : ?>
+															<a href="#" class="badge badge-danger btn-hapus" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>"><i class="far fa-trash-alt"></i> <small>Deactivate</small> </a>
+														<?php elseif ($uj['active'] == 0) : ?>
+															<a href="#" class="badge badge-warning btn-hapus" data-id="<?= $uj['id_user']; ?>" data-nama="<?= $uj['nama_depan']; ?>"><i class="far fa-trash-alt"></i> <small>Activate</small> </a>
+														<?php endif; ?>
 													</td>
 												</tr>
 												<?php $i++ ?>
@@ -215,7 +222,33 @@
 				<div class="modal-footer bg-whitesmoke">
 					<input name="id" class="id" hidden>
 					<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-undo"></i> Close</button>
-					<button type="submit" class="btn btn-danger btn-ok" id="deletemenuu"><i class="far fa-trash-alt"></i> Delete</button>
+					<button type="submit" class="btn btn-danger btn-ok" id="deletemenuu" name="deactive"><i class="far fa-trash-alt"></i> Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<form action="<?= base_url('developer/hapususer') ?>" method="post">
+	<div class="modal fade" id="aktifmodal" tabindex="-1" role="dialog" aria-labelledby="aktifmodal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="aktifmodalLabel"></h5>
+				</div>
+
+
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Masukkan Password Terlebih Dahulu</label>
+						<input type="password" class="form-control" name="password" id="password" placeholder="Password Anda" required>
+					</div>
+				</div>
+
+				<div class="modal-footer bg-whitesmoke">
+					<input name="id" class="id" hidden>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-undo"></i> Close</button>
+					<button type="submit" class="btn btn-warning btn-ok" id="aktifmenuu" name="active"><i class="far fa-trash-alt"></i> Activate</button>
 				</div>
 			</div>
 		</div>
@@ -260,6 +293,20 @@
 			document.getElementById("deletemodalLabel").innerHTML = "Sudah Siap Menghapus User " + nama;
 			// Call Modal Edit
 			$('#deleteemodal').modal('show');
+		});
+	});
+
+	$(document).ready(function() {
+		$('.btn-aktif').on('click', function() {
+			// get data from button edit
+			const id = $(this).data('id');
+			const nama = $(this).data('nama');
+
+			// Set data to Form Edit
+			$('.id').val(id);
+			document.getElementById("aktifmodalLabel").innerHTML = "Sudah Siap Mengaktifkan User " + nama;
+			// Call Modal Edit
+			$('#aktifmodal').modal('show');
 		});
 	});
 

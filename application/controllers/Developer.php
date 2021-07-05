@@ -588,11 +588,10 @@ class Developer extends CI_Controller
                 $passwordBaru = $old_password['password'];
             }
 
-            $upload_image = $_FILES['foto']['name'];
 
             $fotolama = $this->Developer_model->getFoto($id);
             $old_image = $fotolama['foto_user'];
-
+            $upload_image = $_FILES['foto']['name'];
 
             if ($upload_image == true) {
                 $config['allowed_types'] = 'gif|jpg|png|jpeg';
@@ -600,7 +599,7 @@ class Developer extends CI_Controller
 
                 $this->upload->initialize($config);
 
-                if ($this->upload->do_upload('foto_user')) {
+                if ($this->upload->do_upload('foto')) {
                     if ($old_image != 'default.png') {
                         unlink(FCPATH . 'assets/img/avatar/' . $old_image);
                     }
@@ -654,17 +653,30 @@ class Developer extends CI_Controller
             redirect('developer/datauser');
         } else {
             $id = $this->input->post('id');
-            $delete = $this->Admin_model->hapusUser($id);
-
-            if ($delete) {
-                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
-					Berhasil Menghapus User!
-				</div>');
-            } else {
-                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
-					Gagal Menghapus User!
-				</div>');
+            if (isset($_POST['deactive'])) {
+                $delete = $this->Developer_model->hapusUser($id);
+                if ($delete) {
+                    $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+                        Berhasil Menghapus User!
+                    </div>');
+                } else {
+                    $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+                        Gagal Menghapus User!
+                    </div>');
+                }
+            } elseif (isset($_POST['active'])) {
+                $aktif = $this->Developer_model->activeUser($id);
+                if ($aktif) {
+                    $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">
+                        Berhasil Mengaktifkan User!
+                    </div>');
+                } else {
+                    $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">
+                        Gagal Mengaktifkan User!
+                    </div>');
+                }
             }
+
             redirect('developer/datauser');
         }
     }
