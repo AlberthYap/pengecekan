@@ -38,8 +38,9 @@
                                 <label for="unit_id">Unit</label>
                                 <select name="id_unit" id="id_unit" class="form-control">
                                     <?php foreach ($unit as $u) : ?>
-                                        <option value="<?= $u['id_unit'] ?>"><?= $u['nama_unit']; ?></option>
-
+                                        <?php if ($u['id_unit'] != 1) :  ?>
+                                            <option value="<?= $u['id_unit'] ?>"><?= $u['nama_unit']; ?></option>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
